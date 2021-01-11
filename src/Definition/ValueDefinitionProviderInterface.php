@@ -32,10 +32,7 @@
  *
  */
 
-namespace Skyline\FormBuilder\Provider;
-
-
-use Skyline\FormBuilder\Definition\ValueDefinitionInterface;
+namespace Skyline\FormBuilder\Definition;
 
 interface ValueDefinitionProviderInterface
 {
