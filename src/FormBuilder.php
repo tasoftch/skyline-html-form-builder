@@ -187,7 +187,7 @@ class FormBuilder
 	 * @param array|ValueTypeFactoryInterface $values
 	 * @return static
 	 */
-	public function addValues($values) {
+	public function addValueTypes($values) {
 		if($values instanceof ValueTypeFactoryInterface)
 			$values = $values->getValueTypes();
 		if(is_iterable($values)) {
