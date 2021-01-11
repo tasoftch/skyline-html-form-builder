@@ -43,6 +43,7 @@ use Skyline\FormBuilder\Definition\ValuePromise;
 use Skyline\FormBuilder\Provider\ValueDefinitionProviderInterface;
 use Skyline\FormBuilder\Provider\ValueProviderInterface;
 use Skyline\FormBuilder\Provider\ValueStorageInterface;
+use Skyline\FormBuilder\Representation\Generator\ControlRepresentationGenerator;
 use Skyline\FormBuilder\Representation\RepresentationFinalizerInterface;
 use Skyline\FormBuilder\Representation\Generator\RepresentationGeneratorInterface;
 use Skyline\FormBuilder\Representation\RepresentationInterface;
@@ -114,6 +115,8 @@ class FormBuilder
 	 */
 	public function getRepresentationGenerator()
 	{
+		if(!$this->representationGenerator)
+			$this->representationGenerator = new ControlRepresentationGenerator();
 		return $this->representationGenerator;
 	}
 
