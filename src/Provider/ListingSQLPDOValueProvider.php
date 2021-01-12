@@ -36,6 +36,8 @@ namespace Skyline\FormBuilder\Provider;
 
 
 use TASoft\Util\PDO;
+use TASoft\Util\Record\RecordTransformerAdapter;
+use TASoft\Util\Record\StackByTransformer;
 
 class ListingSQLPDOValueProvider extends SimpleSQLPDOValueProvider
 {
@@ -65,7 +67,12 @@ class ListingSQLPDOValueProvider extends SimpleSQLPDOValueProvider
 	protected function yieldPreflight(PDO $PDO)
 	{
 		$t = $this->getSQL();
-		foreach($PDO->select("SELECT * FROM $t") as $record) {
+		foreach((
+			new RecordTransformerAdapter(
+				new StackByTransformer([static::GROUP_FIELD], [static::LIST_FIELD]),
+				$PDO->select($this->getSQL())
+			)
+		)() as $record) {
 			if(isset($record[ $this->getMap(static::NAME_FIELD)]) && isset($record[ $this->getMap(static::VALUE_FIELD) ])) {
 				yield $record[ $this->getMap(static::NAME_FIELD) ] => $record;
 			}
