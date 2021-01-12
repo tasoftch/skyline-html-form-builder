@@ -35,31 +35,34 @@
 namespace Skyline\FormBuilder\Definition;
 
 
-class ValuePromise
+class CallbackDefinitionProvider implements ValueDefinitionProviderInterface
 {
-	private $value;
+	/** @var callable */
+	private $callback;
 
 	/**
-	 * ValuePromise constructor.
-	 * @param mixed|callable $value
+	 * CallbackDefinitionProvider constructor.
+	 * @param callable $callback
 	 */
-	public function __construct($value)
+	public function __construct(callable $callback)
 	{
-		$this->value = $value;
+		$this->callback = $callback;
 	}
 
-	public function __invoke()
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getValueDefinition($key): ?ValueDefinitionInterface
 	{
-		if(is_callable($this->value))
-			return ($this->value)();
-		return $this->value;
+		return call_user_func($this->getCallback(), $key);
 	}
 
 	/**
-	 * @return callable|mixed
+	 * @return callable
 	 */
-	public function getValue()
+	public function getCallback(): callable
 	{
-		return $this->value;
+		return $this->callback;
 	}
 }

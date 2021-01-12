@@ -32,34 +32,34 @@
  *
  */
 
-namespace Skyline\FormBuilder\Definition;
+use PHPUnit\Framework\TestCase;
+use Skyline\FormBuilder\Definition\DescribedListingValueDefinition;
+use Skyline\FormBuilder\Definition\DescribedValueDefinition;
+use Skyline\FormBuilder\Definition\ValueDefinition as ValueDefinitionAlias;
 
-
-class ValuePromise
+class ValueDefinitionTest extends TestCase
 {
-	private $value;
-
-	/**
-	 * ValuePromise constructor.
-	 * @param mixed|callable $value
-	 */
-	public function __construct($value)
-	{
-		$this->value = $value;
+	public function testValueDefinition() {
+		$vd = new ValueDefinitionAlias('string', 89);
+		$this->assertSame('string', $vd->getValueType());
+		$this->assertSame(89, $vd->getOptions());
 	}
 
-	public function __invoke()
-	{
-		if(is_callable($this->value))
-			return ($this->value)();
-		return $this->value;
+	public function testDescribedValueDefinition() {
+		$vd = new DescribedValueDefinition("number", 'Hello', 'Here I am', 'Uhh', 16);
+		$this->assertSame('number', $vd->getValueType());
+		$this->assertSame(16, $vd->getOptions());
+		$this->assertSame('Hello', $vd->getLabel());
+		$this->assertSame('Here I am', $vd->getDescription());
+		$this->assertSame('Uhh', $vd->getPlaceholder());
 	}
 
-	/**
-	 * @return callable|mixed
-	 */
-	public function getValue()
-	{
-		return $this->value;
+	public function testListingDefinition() {
+		$vd = new DescribedListingValueDefinition("popup", [
+			1, 2, 3
+		]);
+
+		$this->assertSame([1,2,3], $vd->getAvailableValueList());
+		$this->assertSame('popup', $vd->getValueType());
 	}
 }

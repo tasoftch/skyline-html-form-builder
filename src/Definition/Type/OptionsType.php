@@ -32,34 +32,41 @@
  *
  */
 
-namespace Skyline\FormBuilder\Definition;
+namespace Skyline\FormBuilder\Definition\Type;
 
 
-class ValuePromise
+
+class OptionsType implements ValueTypeInterface
 {
-	private $value;
-
 	/**
-	 * ValuePromise constructor.
-	 * @param mixed|callable $value
+	 * @inheritDoc
 	 */
-	public function __construct($value)
+	public function getName(): string
 	{
-		$this->value = $value;
-	}
-
-	public function __invoke()
-	{
-		if(is_callable($this->value))
-			return ($this->value)();
-		return $this->value;
+		return "options";
 	}
 
 	/**
-	 * @return callable|mixed
+	 * @inheritDoc
 	 */
-	public function getValue()
+	public function getAvailableValueList()
 	{
-		return $this->value;
+		return NULL;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function toValue(?string $scalarRepresentation, int $options)
+	{
+		return unserialize($scalarRepresentation);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function toScalar($value, int $options): ?string
+	{
+		return serialize($value);
 	}
 }

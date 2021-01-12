@@ -32,34 +32,38 @@
  *
  */
 
-namespace Skyline\FormBuilder\Definition;
+namespace Skyline\FormBuilder\Definition\ListProvider;
 
 
-class ValuePromise
+class IteratorListProvider implements ListProviderInterface
 {
-	private $value;
+	/** @var iterable */
+	private $iterator;
 
 	/**
-	 * ValuePromise constructor.
-	 * @param mixed|callable $value
+	 * IteratorListProvider constructor.
+	 * @param iterable $iterator
 	 */
-	public function __construct($value)
+	public function __construct(iterable $iterator)
 	{
-		$this->value = $value;
+		$this->iterator = $iterator;
 	}
 
-	public function __invoke()
+
+	/**
+	 * @inheritDoc
+	 */
+	public function yieldAvailableValues()
 	{
-		if(is_callable($this->value))
-			return ($this->value)();
-		return $this->value;
+		foreach($this->getIterator() as $key => $value)
+			yield $key => $value;
 	}
 
 	/**
-	 * @return callable|mixed
+	 * @return iterable
 	 */
-	public function getValue()
+	public function getIterator(): iterable
 	{
-		return $this->value;
+		return $this->iterator;
 	}
 }

@@ -32,34 +32,38 @@
  *
  */
 
-namespace Skyline\FormBuilder\Definition;
+namespace Skyline\FormBuilder\Definition\ListProvider;
 
 
-class ValuePromise
+class CallbackListProvider implements ListProviderInterface
 {
-	private $value;
+	/** @var callable */
+	private $callback;
 
 	/**
-	 * ValuePromise constructor.
-	 * @param mixed|callable $value
+	 * CallbackListProvider constructor.
+	 * @param callable $callback
 	 */
-	public function __construct($value)
+	public function __construct(callable $callback)
 	{
-		$this->value = $value;
+		$this->callback = $callback;
 	}
 
-	public function __invoke()
+
+	/**
+	 * @inheritDoc
+	 */
+	public function yieldAvailableValues()
 	{
-		if(is_callable($this->value))
-			return ($this->value)();
-		return $this->value;
+		foreach(call_user_func($this->getCallback()) as $key => $value)
+			yield $key => $value;
 	}
 
 	/**
-	 * @return callable|mixed
+	 * @return callable
 	 */
-	public function getValue()
+	public function getCallback(): callable
 	{
-		return $this->value;
+		return $this->callback;
 	}
 }

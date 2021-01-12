@@ -36,6 +36,7 @@ namespace Skyline\FormBuilder\Provider;
 
 
 use Skyline\FormBuilder\Definition\ValueDefinitionInterface;
+use Skyline\FormBuilder\Definition\ValueDefinitionProviderInterface;
 
 final class ChainValueProvider implements ValueDefinitionProviderInterface, ValueProviderInterface, ValueStorageInterface
 {

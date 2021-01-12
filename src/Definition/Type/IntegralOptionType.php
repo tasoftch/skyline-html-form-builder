@@ -32,34 +32,43 @@
  *
  */
 
-namespace Skyline\FormBuilder\Definition;
+namespace Skyline\FormBuilder\Definition\Type;
 
 
-class ValuePromise
+use Skyline\FormBuilder\Definition\ListProvider\ListProviderInterface;
+use Skyline\HTML\Form\Exception\FormValidationException;
+
+class IntegralOptionType implements ValueTypeInterface
 {
-	private $value;
-
 	/**
-	 * ValuePromise constructor.
-	 * @param mixed|callable $value
+	 * @inheritDoc
 	 */
-	public function __construct($value)
+	public function getName(): string
 	{
-		$this->value = $value;
-	}
-
-	public function __invoke()
-	{
-		if(is_callable($this->value))
-			return ($this->value)();
-		return $this->value;
+		return "integral";
 	}
 
 	/**
-	 * @return callable|mixed
+	 * @inheritDoc
 	 */
-	public function getValue()
+	public function getAvailableValueList()
 	{
-		return $this->value;
+		return NULL;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function toValue(?string $scalarRepresentation, int $options)
+	{
+		return (int) $scalarRepresentation;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function toScalar($value, int $options): ?string
+	{
+		return (string) $value;
 	}
 }

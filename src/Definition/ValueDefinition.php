@@ -35,31 +35,38 @@
 namespace Skyline\FormBuilder\Definition;
 
 
-class ValuePromise
+class ValueDefinition implements ValueDefinitionInterface
 {
-	private $value;
+	/** @var string */
+	private $valueType;
+	/** @var int */
+	private $options;
 
 	/**
-	 * ValuePromise constructor.
-	 * @param mixed|callable $value
+	 * ValueDefinition constructor.
+	 * @param string $valueType
+	 * @param int $options
 	 */
-	public function __construct($value)
+	public function __construct(string $valueType, int $options = 0)
 	{
-		$this->value = $value;
+		$this->valueType = $valueType;
+		$this->options = $options;
 	}
 
-	public function __invoke()
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getValueType(): string
 	{
-		if(is_callable($this->value))
-			return ($this->value)();
-		return $this->value;
+		return $this->valueType;
 	}
 
 	/**
-	 * @return callable|mixed
+	 * @inheritDoc
 	 */
-	public function getValue()
+	public function getOptions(): int
 	{
-		return $this->value;
+		return $this->options;
 	}
 }

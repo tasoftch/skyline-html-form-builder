@@ -19,5 +19,7 @@
     "tasoft/php-pdo": "^0.8"
   },
   "require-dev": {
+    "phpunit/phpunit": "^9.0",
+    "scotteh/php-dom-wrapper": "^1.2"
   }
 }

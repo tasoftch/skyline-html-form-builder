@@ -32,34 +32,54 @@
  *
  */
 
-namespace Skyline\FormBuilder\Definition;
+namespace Skyline\FormBuilder\Provider;
 
 
-class ValuePromise
+class CallbackValueProvider implements ValueProviderInterface
 {
-	private $value;
+	/** @var callable */
+	private $callback;
+	private $cache;
 
 	/**
-	 * ValuePromise constructor.
-	 * @param mixed|callable $value
+	 * CallbackValueProvider constructor.
+	 * @param callable $callback
 	 */
-	public function __construct($value)
+	public function __construct(callable $callback)
 	{
-		$this->value = $value;
+		$this->callback = $callback;
 	}
 
-	public function __invoke()
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getProvidedValueKeys(): array
 	{
-		if(is_callable($this->value))
-			return ($this->value)();
-		return $this->value;
+		if(NULL === $this->cache) {
+			$this->cache = [];
+			foreach(call_user_func($this->getCallback()) as $key => $value) {
+				$this->cache[$key] = $value;
+			}
+		}
+		return array_keys($this->cache);
 	}
 
 	/**
-	 * @return callable|mixed
+	 * @inheritDoc
 	 */
-	public function getValue()
+	public function getProvidedValue($key)
 	{
-		return $this->value;
+		if(NULL === $this->cache)
+			$this->getProvidedValueKeys();
+		return $this->cache[$key] ?? NULL;
+	}
+
+	/**
+	 * @return callable
+	 */
+	public function getCallback(): callable
+	{
+		return $this->callback;
 	}
 }

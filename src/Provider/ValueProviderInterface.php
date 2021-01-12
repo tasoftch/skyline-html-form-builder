@@ -34,7 +34,7 @@
 
 namespace Skyline\FormBuilder\Provider;
 
-use Skyline\FormBuilder\Definition\ValueDefinitionInterface;
+use Skyline\FormBuilder\Definition\ValuePromise;
 
 interface ValueProviderInterface
 {
@@ -49,7 +49,7 @@ interface ValueProviderInterface
 	 * Returns the required value for a key or a default one to display.
 	 *
 	 * @param $key
-	 * @return mixed|ValueDefinitionInterface
+	 * @return mixed|callable|ValuePromise
 	 */
 	public function getProvidedValue($key);
 }

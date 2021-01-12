@@ -32,34 +32,52 @@
  *
  */
 
-namespace Skyline\FormBuilder\Definition;
+namespace Skyline\FormBuilder\Provider;
 
 
-class ValuePromise
+use TASoft\Util\PDO;
+
+class ListingSQLPDOValueProvider extends SimpleSQLPDOValueProvider
 {
-	private $value;
+	const LIST_FIELD = 'list';
+	const GROUP_FIELD = self::ID_FIELD;
 
-	/**
-	 * ValuePromise constructor.
-	 * @param mixed|callable $value
-	 */
-	public function __construct($value)
+	const JOIN_LIST_FIELD = 'list';
+
+	/** @var string */
+	private $listTableName, $listItemTableName;
+
+	public function __construct(PDO $PDO, string $tableName, string $listTableName = NULL, string $listItemTableName = NULL, array $keyMap = [])
 	{
-		$this->value = $value;
+		$keyMap = array_merge([
+			static::LIST_FIELD => 'list',
+			static::GROUP_FIELD => 'id'
+		], $keyMap);
+		parent::__construct($PDO, $tableName, $keyMap);
+
+		$this->listTableName = $listTableName ? $listTableName : "{$tableName}_LIST";
+		$this->listItemTableName = $listItemTableName ? $listItemTableName : "{$this->listTableName}_ITEM";
 	}
 
-	public function __invoke()
+	/**
+	 * @inheritDoc
+	 */
+	protected function yieldPreflight(PDO $PDO)
 	{
-		if(is_callable($this->value))
-			return ($this->value)();
-		return $this->value;
+		$t = $this->getSQL();
+		foreach($PDO->select("SELECT * FROM $t") as $record) {
+			if(isset($record[ $this->getMap(static::NAME_FIELD)]) && isset($record[ $this->getMap(static::VALUE_FIELD) ])) {
+				yield $record[ $this->getMap(static::NAME_FIELD) ] => $record;
+			}
+		}
 	}
 
-	/**
-	 * @return callable|mixed
-	 */
-	public function getValue()
+	protected function makeDefinition(PDO $PDO, string $key, $record, ?string &$valueType, ?int &$options, ?string &$label, ?string &$description, ?string &$placeholder, &$requiredValueList): bool
 	{
-		return $this->value;
+		$k = $this->getMap(static::LIST_FIELD);
+		if(isset($record[$k]) && $record[$k])
+			$requiredValueList = $record[$k];
+
+		return parent::makeDefinition($PDO, $key, $record, $valueType, $options, $label, $description, $placeholder, $requiredValueList);
 	}
 }

@@ -42,6 +42,7 @@ use Skyline\FormBuilder\Definition\Type\BooleanType;
 use Skyline\FormBuilder\Definition\Type\DateType;
 use Skyline\FormBuilder\Definition\Type\EmailTypeValueType;
 use Skyline\FormBuilder\Definition\Type\HTMLType;
+use Skyline\FormBuilder\Definition\Type\IntegralOptionType;
 use Skyline\FormBuilder\Definition\Type\MonthType;
 use Skyline\FormBuilder\Definition\Type\PasswordType;
 use Skyline\FormBuilder\Definition\Type\StringType;
@@ -54,6 +55,7 @@ use Skyline\FormBuilder\Definition\ValuePromise;
 use Skyline\FormBuilder\Representation\ControlRepresentation;
 use Skyline\HTML\Form\Control\AbstractControl;
 use Skyline\HTML\Form\Control\AbstractLabelControl;
+use Skyline\HTML\Form\Control\Option\IntegralOptionListControl;
 use Skyline\HTML\Form\Control\Option\OptionValuesInterface;
 use Skyline\HTML\Form\Control\Option\PopUpControl;
 use Skyline\HTML\Form\Control\Text\TextAreaControl;
@@ -69,7 +71,8 @@ class ControlRepresentationGenerator implements RepresentationGeneratorInterface
 		MonthType::class => PopUpControl::class,
 		PasswordType::class => [TextFieldControl::class, 'type' => TextFieldControl::TYPE_PASSWORD],
 		TextType::class => TextAreaControl::class,
-		StringType::class => TextFieldControl::class
+		StringType::class => TextFieldControl::class,
+		IntegralOptionType::class => IntegralOptionListControl::class
 	];
 
 	/**

@@ -32,34 +32,47 @@
  *
  */
 
-namespace Skyline\FormBuilder\Definition;
+namespace Skyline\FormBuilder\Provider;
 
+use TASoft\Util\PDO;
 
-class ValuePromise
+class StorableSimpleSQLPDOValueProvider extends SimpleSQLPDOValueProvider implements ValueStorageInterface
 {
-	private $value;
+	/** @var string|callable */
+	private $storeSQL;
 
-	/**
-	 * ValuePromise constructor.
-	 * @param mixed|callable $value
-	 */
-	public function __construct($value)
+	public function __construct(PDO $PDO, string $SQL, $storeSQL, array $keyMap = [])
 	{
-		$this->value = $value;
-	}
-
-	public function __invoke()
-	{
-		if(is_callable($this->value))
-			return ($this->value)();
-		return $this->value;
+		parent::__construct($PDO, $SQL, $keyMap);
+		$this->storeSQL = $storeSQL;
 	}
 
 	/**
-	 * @return callable|mixed
+	 * @inheritDoc
 	 */
-	public function getValue()
+	protected function makeSetter(PDO $PDO, string $key, $record, $value)
 	{
-		return $this->value;
+		if(is_callable($s = $this->storeSQL)) {
+			$s($PDO, $key, $record, $value);
+		} else {
+			$id = $record[ $k = $this->getMap(static::ID_FIELD) ] ?? $record[ $k = $this->getMap(static::NAME_FIELD) ];
+			if(!$id)
+				$id = $key;
+
+			$PDO->inject($s)->send([
+				$value,
+				$id
+			]);
+		}
+	}
+
+	public function saveValues(array $changedValues)
+	{
+		$keys = $this->getProvidedValueKeys();
+		foreach($changedValues as $key => $value) {
+			if(in_array($key, $keys)) {
+				$this->makeSetter($this->PDO, $key, $this->cache[$key], $value);
+			}
+		}
 	}
 }

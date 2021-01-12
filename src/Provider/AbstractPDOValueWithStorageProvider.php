@@ -32,34 +32,31 @@
  *
  */
 
-namespace Skyline\FormBuilder\Definition;
+namespace Skyline\FormBuilder\Provider;
 
 
-class ValuePromise
+use Generator;
+use Skyline\FormBuilder\Definition\ListProvider\ListProviderInterface;
+use Skyline\FormBuilder\Definition\ValuePromise;
+use TASoft\Util\PDO;
+
+abstract class AbstractPDOValueWithStorageProvider extends AbstractPDOValueWithDefinitionProvider implements ValueStorageInterface
 {
-	private $value;
-
 	/**
-	 * ValuePromise constructor.
-	 * @param mixed|callable $value
+	 * @param PDO $PDO
+	 * @param string $key
+	 * @param $record
+	 * @param $value
 	 */
-	public function __construct($value)
-	{
-		$this->value = $value;
-	}
+	abstract protected function makeSetter(PDO $PDO, string $key, $record, $value);
 
-	public function __invoke()
+	public function saveValues(array $changedValues)
 	{
-		if(is_callable($this->value))
-			return ($this->value)();
-		return $this->value;
-	}
-
-	/**
-	 * @return callable|mixed
-	 */
-	public function getValue()
-	{
-		return $this->value;
+		$keys = $this->getProvidedValueKeys();
+		foreach($changedValues as $key => $value) {
+			if(in_array($key, $keys)) {
+				$this->makeSetter($this->PDO, $key, $this->cache[$key], $value);
+			}
+		}
 	}
 }

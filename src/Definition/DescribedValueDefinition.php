@@ -32,33 +32,43 @@
  *
  */
 
-namespace Skyline\FormBuilder;
+namespace Skyline\FormBuilder\Definition;
 
 
-use TASoft\Util\PDO;
-
-class PDOFormBuilderFactory
+class DescribedValueDefinition extends ValueDefinition implements DescribedValueDefinitionInterface
 {
-	/** @var PDO */
-	private $PDO;
-	private $_fb;
+	/** @var string|null */
+	private $label, $description, $placeholder;
 
-	/**
-	 * PDOFormBuilderFactory constructor.
-	 * @param PDO $PDO
-	 */
-	public function __construct(PDO $PDO)
+	public function __construct(string $valueType, string $label = NULL, string $description = NULL, string $placeholder = NULL, int $options = 0)
 	{
-		$this->PDO = $PDO;
+		parent::__construct($valueType, $options);
+		$this->label = $label;
+		$this->description = $description;
+		$this->placeholder = $placeholder;
 	}
 
 	/**
-	 * @return FormBuilder
+	 * @return string|null
 	 */
-	public function getFormBuilder(): FormBuilder {
-		if(!$this->_fb) {
+	public function getLabel(): ?string
+	{
+		return $this->label;
+	}
 
-		}
-		return $this->_fb;
+	/**
+	 * @return string|null
+	 */
+	public function getDescription(): ?string
+	{
+		return $this->description;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getPlaceholder(): ?string
+	{
+		return $this->placeholder;
 	}
 }

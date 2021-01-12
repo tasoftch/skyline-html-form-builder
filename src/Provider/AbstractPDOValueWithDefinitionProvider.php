@@ -35,32 +35,44 @@
 namespace Skyline\FormBuilder\Provider;
 
 
+use Skyline\FormBuilder\Definition\DescribedListingValueDefinition;
+use Skyline\FormBuilder\Definition\DescribedValueDefinition;
+use Skyline\FormBuilder\Definition\ListProvider\ListProviderInterface;
+use Skyline\FormBuilder\Definition\ValueDefinition;
 use Skyline\FormBuilder\Definition\ValueDefinitionInterface;
 use Skyline\FormBuilder\Definition\ValueDefinitionProviderInterface;
+use TASoft\Util\PDO;
 
-class StaticValueProvider extends AbstractValueProvider implements ValueStorageInterface, ValueDefinitionProviderInterface
+abstract class AbstractPDOValueWithDefinitionProvider extends AbstractPDOValueProvider implements ValueDefinitionProviderInterface
 {
-	private $definitions;
-	public function __construct(&$values, $definitions = [])
-	{
-		$this->values =&$values;
-		$this->definitions = $definitions;
-	}
-
 	/**
-	 * @inheritDoc
+	 * @param PDO $PDO
+	 * @param string $key
+	 * @param $record
+	 * @param string|null $valueType
+	 * @param int|null $options
+	 * @param string|null $label
+	 * @param string|null $description
+	 * @param string|null $placeholder
+	 * @param array|ListProviderInterface $requiredValueList
+	 * @return bool
 	 */
-	public function saveValues(array $changedValues)
-	{
-		foreach($changedValues as $key => $value)
-			$this->values[$key] = $value;
-	}
+	abstract protected function makeDefinition(PDO $PDO, string $key, $record, ?string &$valueType, ?int &$options, ?string &$label, ?string &$description, ?string &$placeholder, &$requiredValueList): bool;
 
 	/**
 	 * @inheritDoc
 	 */
 	public function getValueDefinition($key): ?ValueDefinitionInterface
 	{
-		return $this->definitions[$key] ?? NULL;
+		if(!isset($this->cache))
+			$this->getProvidedValueKeys();
+		if(isset($this->cache[$key]) && $this->makeDefinition($this->PDO, $key, $this->cache[$key], $type, $options, $label, $desc, $placeholder, $list)) {
+			if($list)
+				return new DescribedListingValueDefinition($type, $list, $label, $desc, $placeholder, $options);
+			if($label||$desc||$placeholder)
+				return new DescribedValueDefinition($type, $label, $desc, $placeholder, $options);
+			return new ValueDefinition($type, $options);
+		}
+		return NULL;
 	}
 }

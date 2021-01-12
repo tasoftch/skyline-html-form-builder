@@ -32,34 +32,22 @@
  *
  */
 
-namespace Skyline\FormBuilder\Definition;
+use PHPUnit\Framework\TestCase;
+use Skyline\FormBuilder\Definition\ValuePromise;
 
-
-class ValuePromise
+class ValuePromiseTest extends TestCase
 {
-	private $value;
+	public function testInitial() {
+		$cp = new ValuePromise($v = function() {return 3;});
 
-	/**
-	 * ValuePromise constructor.
-	 * @param mixed|callable $value
-	 */
-	public function __construct($value)
-	{
-		$this->value = $value;
+		$this->assertSame($v, $cp->getValue());
+		$this->assertSame(3, $cp());
 	}
 
-	public function __invoke()
-	{
-		if(is_callable($this->value))
-			return ($this->value)();
-		return $this->value;
-	}
+	public function testLiteral() {
+		$cp = new ValuePromise(38);
 
-	/**
-	 * @return callable|mixed
-	 */
-	public function getValue()
-	{
-		return $this->value;
+		$this->assertSame(38, $cp->getValue());
+		$this->assertSame(38, $cp());
 	}
 }

@@ -35,31 +35,32 @@
 namespace Skyline\FormBuilder\Definition;
 
 
-class ValuePromise
+use Skyline\FormBuilder\Definition\ListProvider\ListProviderInterface;
+
+class DescribedListingValueDefinition extends DescribedValueDefinition implements CustomListingValueDefinitionInterface
 {
-	private $value;
+	private $valueList;
 
 	/**
-	 * ValuePromise constructor.
-	 * @param mixed|callable $value
+	 * DescribedListingValueDefinition constructor.
+	 * @param string $valueType
+	 * @param array|ListProviderInterface $list
+	 * @param string|null $label
+	 * @param string|null $description
+	 * @param string|null $placeholder
+	 * @param int $options
 	 */
-	public function __construct($value)
+	public function __construct(string $valueType, $list, string $label = NULL, string $description = NULL, string $placeholder = NULL, int $options = 0)
 	{
-		$this->value = $value;
-	}
-
-	public function __invoke()
-	{
-		if(is_callable($this->value))
-			return ($this->value)();
-		return $this->value;
+		parent::__construct($valueType, $label, $description, $placeholder, $options);
+		$this->valueList = $list;
 	}
 
 	/**
-	 * @return callable|mixed
+	 * @inheritDoc
 	 */
-	public function getValue()
+	public function getAvailableValueList()
 	{
-		return $this->value;
+		return $this->valueList;
 	}
 }

@@ -32,34 +32,73 @@
  *
  */
 
-namespace Skyline\FormBuilder\Definition;
+namespace Skyline\FormBuilder\Provider;
 
+use Generator;
+use Skyline\FormBuilder\Definition\ValuePromise;
+use TASoft\Util\PDO;
 
-class ValuePromise
+abstract class AbstractPDOValueProvider implements ValueProviderInterface
 {
-	private $value;
+	/** @var PDO */
+	protected $PDO;
+	protected $cache;
 
 	/**
-	 * ValuePromise constructor.
-	 * @param mixed|callable $value
+	 * PDOValueProvider constructor.
+	 * @param PDO $PDO
 	 */
-	public function __construct($value)
+	public function __construct(PDO $PDO)
 	{
-		$this->value = $value;
-	}
-
-	public function __invoke()
-	{
-		if(is_callable($this->value))
-			return ($this->value)();
-		return $this->value;
+		$this->PDO = $PDO;
 	}
 
 	/**
-	 * @return callable|mixed
+	 * Yield all keys.
+	 * There is a $key => $record map expected where the record gets cached for further use.
+	 * if $record is a string, it's used as key.
+	 *
+	 * @param PDO $PDO
+	 * @param $nameField
+	 * @return Generator
 	 */
-	public function getValue()
+	abstract protected function yieldPreflight(PDO $PDO);
+
+	/**
+	 * This method gets called on value demand
+	 *
+	 * @param PDO $PDO
+	 * @param string $key
+	 * @param $record
+	 * @return mixed|callable|ValuePromise
+	 */
+	abstract protected function makeGetter(PDO $PDO, string $key, $record);
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getProvidedValueKeys(): array
 	{
-		return $this->value;
+		if(NULL !== $this->cache) {
+			$this->cache = [];
+			foreach($this->yieldPreflight($this->PDO) as $key => $record) {
+				if(is_string($record))
+					$key = $record;
+				$this->cache[ $key ] = $record;
+			}
+		}
+		return array_keys($this->cache);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getProvidedValue($key)
+	{
+		if(!isset($this->cache))
+			$this->getProvidedValueKeys();
+		if(isset($this->cache[$key]))
+			return $this->makeGetter($this->PDO, $key, $this->cache[$key]);
+		return NULL;
 	}
 }
