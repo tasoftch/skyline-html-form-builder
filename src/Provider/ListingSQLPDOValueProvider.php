@@ -44,21 +44,13 @@ class ListingSQLPDOValueProvider extends SimpleSQLPDOValueProvider
 	const LIST_FIELD = 'list';
 	const GROUP_FIELD = self::ID_FIELD;
 
-	const JOIN_LIST_FIELD = 'list';
-
-	/** @var string */
-	private $listTableName, $listItemTableName;
-
-	public function __construct(PDO $PDO, string $tableName, string $listTableName = NULL, string $listItemTableName = NULL, array $keyMap = [])
+	public function __construct(PDO $PDO, string $sql, array $keyMap = [])
 	{
 		$keyMap = array_merge([
 			static::LIST_FIELD => 'list',
 			static::GROUP_FIELD => 'id'
 		], $keyMap);
-		parent::__construct($PDO, $tableName, $keyMap);
-
-		$this->listTableName = $listTableName ? $listTableName : "{$tableName}_LIST";
-		$this->listItemTableName = $listItemTableName ? $listItemTableName : "{$this->listTableName}_ITEM";
+		parent::__construct($PDO, $sql, $keyMap);
 	}
 
 	/**

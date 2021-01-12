@@ -36,7 +36,7 @@ namespace Skyline\FormBuilder\Provider;
 
 use TASoft\Util\PDO;
 
-class StorableSimpleSQLPDOValueProvider extends SimpleSQLPDOValueProvider implements ValueStorageInterface
+class StorableSimpleSQLPDOValueProvider extends ListingSQLPDOValueProvider implements ValueStorageInterface
 {
 	/** @var string|callable */
 	private $storeSQL;
