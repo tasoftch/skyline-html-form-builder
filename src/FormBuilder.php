@@ -61,7 +61,7 @@ class FormBuilder
 
 	/** @var ValueDefinitionProviderInterface|null */
 	private $definitionProvider;
-	/** @var RepresentationInterface */
+	/** @var RepresentationGeneratorInterface */
 	private $representationGenerator;
 
 	/** @var RepresentationFinalizerInterface|null */
@@ -111,7 +111,7 @@ class FormBuilder
 	}
 
 	/**
-	 * @return RepresentationInterface
+	 * @return RepresentationGeneratorInterface
 	 */
 	public function getRepresentationGenerator()
 	{
@@ -121,7 +121,7 @@ class FormBuilder
 	}
 
 	/**
-	 * @param RepresentationInterface $representationGenerator
+	 * @param RepresentationGeneratorInterface $representationGenerator
 	 * @return static
 	 */
 	public function setRepresentationGenerator($representationGenerator)
