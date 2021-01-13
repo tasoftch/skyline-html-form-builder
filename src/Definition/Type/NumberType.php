@@ -35,45 +35,26 @@
 namespace Skyline\FormBuilder\Definition\Type;
 
 
-use Skyline\HTML\Form\Exception\FormValidationException;
-use Skyline\HTML\Form\Validator\IsEmailAddressValidator;
+use Skyline\HTML\Form\Validator\IsNumericValidator;
 
-class EmailTypeValueType extends AbstractNonListType implements ValidationRequiredValueTypeInterface
+class NumberType extends StringType implements ValidationRequiredValueTypeInterface
 {
-
-	/**
-	 * @inheritDoc
-	 */
 	public function getName(): string
 	{
-		return "email";
+		return "number";
 	}
 
-	/**
-	 * @inheritDoc
-	 */
 	public function toValue(?string $scalarRepresentation, int $options)
 	{
-		return $scalarRepresentation;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function toScalar($value, int $options): ?string
-	{
-		if($value) {
-			if(!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-				throw new FormValidationException("Invalid email address representation");
-			}
-		}
-		return $value;
+		return $scalarRepresentation * 1;
 	}
 
 	public function getValidators(): array
 	{
 		return [
-			new IsEmailAddressValidator()
+			new IsNumericValidator()
 		];
 	}
+
+
 }

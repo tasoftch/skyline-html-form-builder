@@ -2,7 +2,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, TASoft Applications
+ * Copyright (c) 2019, TASoft Applications
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,73 +32,44 @@
  *
  */
 
-namespace Skyline\FormBuilder\Provider;
+namespace Skyline\FormBuilder\Definition\Type;
 
-use Generator;
-use Skyline\FormBuilder\Definition\ValuePromise;
-use TASoft\Util\PDO;
 
-abstract class AbstractPDOValueProvider implements ValueProviderInterface
+use Skyline\FormBuilder\Definition\ListProvider\ListProviderInterface;
+use Skyline\HTML\Form\Exception\FormValidationException;
+
+class SelectType implements ValueTypeInterface
 {
-	/** @var PDO */
-	protected $PDO;
-	protected $cache;
-
-	/**
-	 * PDOValueProvider constructor.
-	 * @param PDO $PDO
-	 */
-	public function __construct(PDO $PDO)
-	{
-		$this->PDO = $PDO;
-	}
-
-	/**
-	 * Yield all keys.
-	 * There is a $key => $record map expected where the record gets cached for further use.
-	 * if $record is a string, it's used as key.
-	 *
-	 * @param PDO $PDO
-	 * @param $nameField
-	 * @return Generator
-	 */
-	abstract protected function yieldPreflight(PDO $PDO);
-
-	/**
-	 * This method gets called on value demand
-	 *
-	 * @param PDO $PDO
-	 * @param string $key
-	 * @param $record
-	 * @return mixed|callable|ValuePromise
-	 */
-	abstract protected function makeGetter(PDO $PDO, string $key, $record);
 
 	/**
 	 * @inheritDoc
 	 */
-	public function getProvidedValueKeys(): array
+	public function getName(): string
 	{
-		if(NULL === $this->cache) {
-			$this->cache = [];
-			foreach($this->yieldPreflight($this->PDO) as $key => $record) {
-				if(is_string($record))
-					$key = $record;
-				$this->cache[ $key ] = $record;
-			}
-		}
-		return array_keys($this->cache);
+		return "select";
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function getProvidedValue($key)
+	public function getAvailableValueList()
 	{
-		if(!isset($this->cache))
-			$this->getProvidedValueKeys();
-		if(isset($this->cache[$key]))
-			return $this->makeGetter($this->PDO, $key, $this->cache[$key]);
-		return NULL;
+		return [];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function toValue(?string $scalarRepresentation, int $options)
+	{
+		return $scalarRepresentation;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function toScalar($value, int $options): ?string
+	{
+		return $value;
 	}
 }

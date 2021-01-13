@@ -267,7 +267,8 @@ class FormBuilder
 					return $raw ? $v : $valueType->toValue($v, $definition->getOptions());
 				});
 				return true;
-			}
+			} else
+				trigger_error(sprintf("No value type %s defined", $definition->getValueType()), E_USER_WARNING);
 		}
 		return false;
 	}
@@ -294,8 +295,12 @@ class FormBuilder
 		foreach($this->getValueProvider()->getProvidedValueKeys() as $key) {
 			if($accepts($key)) {
 				if($this->canHandleValue($key, $def, $type, $default)) {
-					if($r = $this->getRepresentationGenerator()->generateRepresentation($key, $def, $type, $default))
-						$representations = array_merge($representations, $r);
+					if($r = $this->getRepresentationGenerator()->generateRepresentation($key, $def, $type, $default)) {
+						if(is_array($r))
+							$representations = array_merge($representations, $r);
+						else
+							$representations[] = $r;
+					}
 				}
 			}
 		}
@@ -311,7 +316,7 @@ class FormBuilder
 		}
 		$vi = new ValueInjector($br = new BuildResult());
 		$vi->representations = $representations;
-		return $representations;
+		return $br;
 	}
 
 	/**

@@ -35,19 +35,24 @@
 namespace Skyline\FormBuilder\Provider;
 
 
+use Skyline\FormBuilder\Definition\ListProvider\KeysLabelsListProvider;
 use TASoft\Util\PDO;
 use TASoft\Util\Record\RecordTransformerAdapter;
 use TASoft\Util\Record\StackByTransformer;
 
 class ListingSQLPDOValueProvider extends SimpleSQLPDOValueProvider
 {
+	const LIST_ID_FIELD = 'list_id';
+	const LIST_LABEL_FIELD = 'list_label';
 	const LIST_FIELD = 'list';
+
 	const GROUP_FIELD = self::ID_FIELD;
 
 	public function __construct(PDO $PDO, string $sql, array $keyMap = [])
 	{
 		$keyMap = array_merge([
-			static::LIST_FIELD => 'list',
+			static::LIST_ID_FIELD => 'list_id',
+			static::LIST_LABEL_FIELD => 'list_label',
 			static::GROUP_FIELD => 'id'
 		], $keyMap);
 		parent::__construct($PDO, $sql, $keyMap);
@@ -58,14 +63,24 @@ class ListingSQLPDOValueProvider extends SimpleSQLPDOValueProvider
 	 */
 	protected function yieldPreflight(PDO $PDO)
 	{
-		$t = $this->getSQL();
 		foreach((
 			new RecordTransformerAdapter(
-				new StackByTransformer([static::GROUP_FIELD], [static::LIST_FIELD]),
+				new StackByTransformer([static::GROUP_FIELD], [static::LIST_ID_FIELD, static::LIST_LABEL_FIELD]),
 				$PDO->select($this->getSQL())
 			)
-		)() as $record) {
-			if(isset($record[ $this->getMap(static::NAME_FIELD)]) && isset($record[ $this->getMap(static::VALUE_FIELD) ])) {
+		) as $record) {
+			if(
+				array_key_exists($this->getMap(static::NAME_FIELD), $record) &&
+				array_key_exists($this->getMap(static::VALUE_FIELD), $record)
+			) {
+				$record[ static::LIST_FIELD ] =
+					(is_array($record[ static::LIST_ID_FIELD ]) && $record[ static::LIST_ID_FIELD ]) ?
+					new KeysLabelsListProvider($record[ static::LIST_ID_FIELD ], $record[static::LIST_LABEL_FIELD]) :
+					[]
+				;
+				unset($record[static::LIST_ID_FIELD]);
+				unset($record[static::LIST_LABEL_FIELD]);
+
 				yield $record[ $this->getMap(static::NAME_FIELD) ] => $record;
 			}
 		}

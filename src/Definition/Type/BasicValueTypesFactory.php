@@ -35,15 +35,15 @@
 namespace Skyline\FormBuilder\Definition\Type;
 
 
-class BasicValueTypesFactory implements ValueTypeFactoryInterface
+class BasicValueTypesFactory extends AbstractValueTypesFactory
 {
-	public function getValueTypes(): iterable
+	public function __construct()
 	{
-		return [
+		parent::__construct([
 			new BooleanType(),
-			new NumberTypeValueType(),
+			new NumberType(),
 			new StringType(),
 			new TextType()
-		];
+		]);
 	}
 }

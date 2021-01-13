@@ -32,73 +32,48 @@
  *
  */
 
-namespace Skyline\FormBuilder\Provider;
+namespace Skyline\FormBuilder\Definition\Type;
 
-use Generator;
-use Skyline\FormBuilder\Definition\ValuePromise;
-use TASoft\Util\PDO;
 
-abstract class AbstractPDOValueProvider implements ValueProviderInterface
+use Skyline\HTML\Form\Exception\FormValidationException;
+use Skyline\HTML\Form\Validator\IsEmailAddressValidator;
+
+class EmailType extends AbstractNonListType implements ValidationRequiredValueTypeInterface
 {
-	/** @var PDO */
-	protected $PDO;
-	protected $cache;
-
-	/**
-	 * PDOValueProvider constructor.
-	 * @param PDO $PDO
-	 */
-	public function __construct(PDO $PDO)
-	{
-		$this->PDO = $PDO;
-	}
-
-	/**
-	 * Yield all keys.
-	 * There is a $key => $record map expected where the record gets cached for further use.
-	 * if $record is a string, it's used as key.
-	 *
-	 * @param PDO $PDO
-	 * @param $nameField
-	 * @return Generator
-	 */
-	abstract protected function yieldPreflight(PDO $PDO);
-
-	/**
-	 * This method gets called on value demand
-	 *
-	 * @param PDO $PDO
-	 * @param string $key
-	 * @param $record
-	 * @return mixed|callable|ValuePromise
-	 */
-	abstract protected function makeGetter(PDO $PDO, string $key, $record);
 
 	/**
 	 * @inheritDoc
 	 */
-	public function getProvidedValueKeys(): array
+	public function getName(): string
 	{
-		if(NULL === $this->cache) {
-			$this->cache = [];
-			foreach($this->yieldPreflight($this->PDO) as $key => $record) {
-				if(is_string($record))
-					$key = $record;
-				$this->cache[ $key ] = $record;
+		return "email";
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function toValue(?string $scalarRepresentation, int $options)
+	{
+		return $scalarRepresentation;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function toScalar($value, int $options): ?string
+	{
+		if($value) {
+			if(!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+				throw new FormValidationException("Invalid email address representation");
 			}
 		}
-		return array_keys($this->cache);
+		return $value;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function getProvidedValue($key)
+	public function getValidators(): array
 	{
-		if(!isset($this->cache))
-			$this->getProvidedValueKeys();
-		if(isset($this->cache[$key]))
-			return $this->makeGetter($this->PDO, $key, $this->cache[$key]);
-		return NULL;
+		return [
+			new IsEmailAddressValidator()
+		];
 	}
 }

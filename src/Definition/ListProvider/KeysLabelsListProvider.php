@@ -2,7 +2,7 @@
 /*
  * BSD 3-Clause License
  *
- * Copyright (c) 2021, TASoft Applications
+ * Copyright (c) 2019, TASoft Applications
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,29 +32,13 @@
  *
  */
 
-namespace Skyline\FormBuilder\Definition\Type;
+namespace Skyline\FormBuilder\Definition\ListProvider;
 
 
-use Skyline\HTML\Form\Validator\IsNumericValidator;
-
-class NumberTypeValueType extends StringType implements ValidationRequiredValueTypeInterface
+class KeysLabelsListProvider extends IteratorListProvider
 {
-	public function getName(): string
+	public function __construct(array $keys, array $labels)
 	{
-		return "number";
+		parent::__construct(array_combine($keys, $labels));
 	}
-
-	public function toValue(?string $scalarRepresentation, int $options)
-	{
-		return $scalarRepresentation * 1;
-	}
-
-	public function getValidators(): array
-	{
-		return [
-			new IsNumericValidator()
-		];
-	}
-
-
 }

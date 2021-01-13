@@ -40,11 +40,12 @@ use Skyline\FormBuilder\Definition\DescribedValueDefinitionInterface;
 use Skyline\FormBuilder\Definition\ListProvider\ListProviderInterface;
 use Skyline\FormBuilder\Definition\Type\BooleanType;
 use Skyline\FormBuilder\Definition\Type\DateType;
-use Skyline\FormBuilder\Definition\Type\EmailTypeValueType;
+use Skyline\FormBuilder\Definition\Type\EmailType;
 use Skyline\FormBuilder\Definition\Type\HTMLType;
 use Skyline\FormBuilder\Definition\Type\IntegralOptionType;
 use Skyline\FormBuilder\Definition\Type\MonthType;
 use Skyline\FormBuilder\Definition\Type\PasswordType;
+use Skyline\FormBuilder\Definition\Type\SelectType;
 use Skyline\FormBuilder\Definition\Type\StringType;
 use Skyline\FormBuilder\Definition\Type\TextType;
 use Skyline\FormBuilder\Definition\Type\ValueTypeInterface;
@@ -66,13 +67,14 @@ class ControlRepresentationGenerator implements RepresentationGeneratorInterface
 	protected $valueControlMap = [
 		BooleanType::class => PopUpControl::class,
 		DateType::class => [TextFieldControl::class, 'type' => TextFieldControl::TYPE_DATE],
-		EmailTypeValueType::class => [TextFieldControl::class, 'type' => TextFieldControl::TYPE_EMAIL],
+		EmailType::class => [TextFieldControl::class, 'type' => TextFieldControl::TYPE_EMAIL],
 		HTMLType::class => [TextAreaControl::class, "rows" => 10],
 		MonthType::class => PopUpControl::class,
 		PasswordType::class => [TextFieldControl::class, 'type' => TextFieldControl::TYPE_PASSWORD],
 		TextType::class => TextAreaControl::class,
 		StringType::class => TextFieldControl::class,
-		IntegralOptionType::class => IntegralOptionListControl::class
+		IntegralOptionType::class => IntegralOptionListControl::class,
+		SelectType::class => PopUpControl::class
 	];
 
 	/**
@@ -96,7 +98,7 @@ class ControlRepresentationGenerator implements RepresentationGeneratorInterface
 				if(!is_array($map)) {
 					$map = [$map];
 				}
-				$class = array_unshift($map);
+				$class = array_shift($map);
 				if(class_exists($class)) {
 					/** @var AbstractControl $control */
 					$control = new $class($key, $key);
