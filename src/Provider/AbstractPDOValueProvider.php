@@ -101,4 +101,14 @@ abstract class AbstractPDOValueProvider implements ValueProviderInterface
 			return $this->makeGetter($this->PDO, $key, $this->cache[$key]);
 		return NULL;
 	}
+
+	/**
+	 * Gets the cached record if available
+	 *
+	 * @param string $key
+	 * @return mixed|null
+	 */
+	public function getCachedRecord(string $key) {
+		return $this->cache[$key] ?? NULL;
+	}
 }
