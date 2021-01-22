@@ -348,10 +348,12 @@ class FormBuilder
 
 				$data = array_filter($element->getData(), $filter, ARRAY_FILTER_USE_BOTH);
 
-				$storage->saveValues( array_map(function($v, $k) {
-					$def = $this->getDefinition($k);
-					return $this->getValueType($k)->toScalar($v, $def->getOptions());
-				}, $data, array_keys($data)) );
+				$values = [];
+				foreach($data as $key => $value) {
+					$def = $this->getDefinition($key);
+					$values[$key] = $this->getValueType($def->getValueType())->toScalar($value, $def->getOptions());
+				}
+				$storage->saveValues( $values );
 			}
 		} elseif($state == $element::FORM_STATE_NONE) {
 			$contents = [];
